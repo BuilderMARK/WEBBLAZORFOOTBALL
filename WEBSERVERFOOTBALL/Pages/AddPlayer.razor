@@ -1,0 +1,79 @@
+﻿@page "/AddPlayer"
+<h3>AddTeam</h3>
+
+@using Microsoft.AspNetCore.Components
+@using WEBSERVERFOOTBALL.Data
+@using WEBSERVERFOOTBALL.Models
+
+@inject IPlayerData PlayerService;
+@inject ITeamData TeamData;
+@inject NavigationManager NavigationManager;
+<h3>AddTeam</h3>
+<EditForm Model="@player" OnValidSubmit="async ()=>await AddNewPlayer()" Context="Family">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="form-group"> Player id <br/>
+        <InputNumber @bind-Value="player.Id"></InputNumber>
+    </div>
+    <div class="form-group">Player name <br/>
+        <InputText @bind-Value="player.Name"></InputText>
+    </div>
+    <div class="form-group"> Position <br/>
+        <InputText @bind-Value="player.Position"></InputText>
+    </div>
+    <div class="form-group"> Salary <br/>
+        <InputNumber @bind-Value="player.Salary"></InputNumber>
+    </div>
+    <div class="form-group"> ShirtNumber <br/>
+        <InputNumber @bind-Value="player.ShirtNumber"></InputNumber>
+    </div>
+    <div class="form-group"> Goals This Season <br/>
+        <InputNumber @bind-Value="player.GoalsThisSeason"></InputNumber>
+    </div>
+    
+     <div class="row px-3"> 
+       <div class="col-md-6 col-lg-4 col-xl-3 p-3"> 
+             <RadzenCard> 
+              <h4 class="mb-4">Binding to simple collection</h4> 
+                 <RadzenDropDown AllowClear="true" TValue="Team" Class="w-100"  
+                                 AllowFiltering="true" 
+                                 Data=@team TextProperty="teamname" 
+                                
+                                 Change=@(args => OnChange(args)) /> 
+             </RadzenCard> 
+         </div> 
+     </div> 
+   
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" onclick="AddNewPlayer()" type="submit"> Add Team</button>
+    </p>
+</EditForm>
+@code {
+
+
+
+    IList<Team> team;
+    Player player;
+    private string teamname;
+
+
+    public void OnChange(object args)
+    {
+        Team team = new Team();
+        team = (Team) args;
+        teamname = team.TeamName;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        player = new();
+        team = await TeamData.ReadAllTeams(5,"");
+    }
+    
+    public async Task AddNewPlayer()
+    {
+        await PlayerService.AddPlayer(player, teamname);
+        
+        NavigationManager.NavigateTo("/added");
+    }
+}

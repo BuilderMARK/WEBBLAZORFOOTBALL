@@ -1,0 +1,60 @@
+﻿@page "/SeeAll"
+@using WEBSERVERFOOTBALL.Models
+@using WEBSERVERFOOTBALL.Data
+<h3>SeeAll</h3>
+
+@inject ITeamData TeamService;
+@inject NavigationManager NavigationManager;
+<h3>SeeAll</h3>
+<input type="number" @bind="Rating" placeholder="minrating">
+<input type="text" @bind="TeamName" placeholder="name contains characters">
+@if (allteams != null)
+{
+    @foreach (var item in allteams)
+    {
+        <p>TeamName:@item.TeamName</p>
+        <p> CoachNAME:@item.NameOfCoach </p>
+        <p>TEAM RANK:@item.Ranking</p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">player name</th>
+                <th scope="col">player goals</th>
+                <th scope="col">player shirtnr</th>
+                <th scope="col">salary </th>
+                <th scope="col">position </th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (item.Players != null)
+            {
+                @foreach (var pl in item.Players)
+                {
+                    <tr>
+                        <td>@pl.Name</td>
+                        <td>@pl.GoalsThisSeason</td>
+                        <td>@pl.ShirtNumber</td>
+                        <td>@pl.Salary</td>
+                        <td>@pl.Position</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        
+        
+        </table>
+        <div>end team</div>
+    }
+}
+
+@code {
+    IList<Team> allteams;
+
+    int Rating;
+    string TeamName;
+    protected override  async Task OnInitializedAsync()
+    {
+        allteams = await TeamService.ReadAllTeams(Rating,TeamName);
+    }
+
+}

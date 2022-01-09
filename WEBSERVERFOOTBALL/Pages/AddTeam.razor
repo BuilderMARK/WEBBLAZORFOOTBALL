@@ -1,0 +1,36 @@
+﻿@page "/AddTeam"
+<h3>AddTeam</h3>
+
+@using Microsoft.AspNetCore.Components
+@using WEBSERVERFOOTBALL.Data
+@using WEBSERVERFOOTBALL.Models
+
+@inject ITeamData TeamService;
+@inject NavigationManager NavigationManager;
+<h3>AddTeam</h3>
+<EditForm Model="@team" OnValidSubmit="async ()=>await AddNewTea()" Context="Family">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="form-group"> Team name <br/>
+        <InputText @bind-Value="team.TeamName"></InputText>
+    </div>
+    <div class="form-group">coach name <br/>
+        <InputText @bind-Value="team.NameOfCoach"></InputText>
+    </div>
+    <div class="form-group"> ranking <br/>
+        <InputNumber @bind-Value="team.Ranking"></InputNumber>
+    </div>
+
+    <p class="actions">
+        <button class="btn btn-outline-dark" type="submit"> Add Team</button>
+    </p>
+</EditForm>
+@code {
+    Team team = new Team();
+
+    public async Task AddNewTea()
+    {
+        await TeamService.AddTeam(team);
+        NavigationManager.NavigateTo("/added");
+    }
+}
