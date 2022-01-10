@@ -6,8 +6,7 @@ namespace WEBSERVERFOOTBALL.Data
 {
     public interface IPlayerData
     {
-        Task<IList<Player>> ReadAllPlayers();
-        Task<Player> AddPlayer(Player addPlayer, string team);
-        Task DeletePlayer(int deletePlayer);
+        Task AddPlayer(Player addPlayer, string teamName);
+        Task DeletePlayer(int playerId);
     }
 }

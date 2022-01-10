@@ -127,7 +127,7 @@ using WEBSERVERFOOTBALL.Data;
     string TeamName;
     protected override  async Task OnInitializedAsync()
     {
-        allteams = await TeamService.ReadAllTeams(Rating,TeamName);
+        allteams = await TeamService.GetTeams();
     }
 
 

@@ -8,60 +8,38 @@ using WEBSERVERFOOTBALL.Models;
 
 namespace WEBSERVERFOOTBALL.Data
 {
-    
-    
+
+
     public class IPlayerServiceRest : IPlayerData
     {
-        private HttpClient client;
-        private string uri = "https://localhost:5001/Player";
+        private readonly string URL = "https://localhost:5001";
 
-        public IPlayerServiceRest()
+        public async Task AddPlayer(Player player, string teamName)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
-            {
-                return true;
-            };
-            client = new HttpClient(clientHandler);
-        }
+            using HttpClient client = new();
 
-        public async Task<IList<Player>> ReadAllPlayers()
-        {
-            HttpResponseMessage responseMessage = await client.GetAsync(uri);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception($@"Error: {responseMessage.ReasonPhrase}");
-            }
+            string playerAsJson = JsonSerializer.Serialize(player);
 
-            string result = await responseMessage.Content.ReadAsStringAsync();
-            IList<Player> players = JsonSerializer.Deserialize<IList<Player>>(result, new JsonSerializerOptions{ PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-            return players;
-        }
-
-        public async Task<Player> AddPlayer(Player addPlayer, string team)
-        {
-            string teamJson = JsonSerializer.Serialize(addPlayer);
-            HttpContent content = new StringContent(
-                teamJson,
+            Console.WriteLine(player);
+            StringContent content = new StringContent(
+                playerAsJson,
                 Encoding.UTF8,
-                "application/json");
-            HttpResponseMessage responseMessage = 
-                await client.PostAsync(uri,content);
+                "application/json"
+            );
+            Console.WriteLine($"Before responseMessage: {player}");
+            HttpResponseMessage responseMessage = await client.PostAsync($"{URL}/Player/{teamName}", content);
+            Console.WriteLine($"After responseMessage: {player}");
             if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception(responseMessage.ReasonPhrase);
-            }
-
-            string result = await responseMessage.Content.ReadAsStringAsync();
-            Player returnDeserialize = JsonSerializer.Deserialize<Player>(result, new JsonSerializerOptions{ PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-            Console.WriteLine(addPlayer+ " " + "Team Name " + team);
-            return returnDeserialize;
-        
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
         }
 
-        public Task DeletePlayer(int deletePlayer)
+        public async Task DeletePlayer(int playerId)
         {
-            throw new System.NotImplementedException();
+            using HttpClient client = new();
+            HttpResponseMessage responseMessage = await client.DeleteAsync($"{URL}/Player/{playerId}");
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
         }
     }
+
 }

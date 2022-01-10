@@ -144,13 +144,12 @@ using WEBSERVERFOOTBALL.Models;
     protected override async Task OnInitializedAsync()
     {
         player = new();
-        team = await TeamData.ReadAllTeams(5,"");
+        team = await TeamData.GetTeams();
     }
     
     public async Task AddNewPlayer()
     {
         await PlayerService.AddPlayer(player, teamname);
-        
         NavigationManager.NavigateTo("/added");
     }
 

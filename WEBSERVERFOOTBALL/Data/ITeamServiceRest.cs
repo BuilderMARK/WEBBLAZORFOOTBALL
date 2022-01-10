@@ -10,51 +10,42 @@ namespace WEBSERVERFOOTBALL.Data
 {
     public class ITeamServiceRest : ITeamData
     {
-        private HttpClient client;
-        private string uri = "http://localhost:5000/Team";
+        private readonly string URL = "https://localhost:5001";
 
-        public ITeamServiceRest()
+
+        public async Task AddTeam(Team team)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
-            {
-                return true;
-            }; 
-            client = new HttpClient(clientHandler);
-        }
-        
-        public async Task<IList<Team>> ReadAllTeams(int Rating, string TeamName)
-        {
-            HttpResponseMessage responseMessage = await client.GetAsync(uri);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception($@"Error: {responseMessage.ReasonPhrase}");
-            }
+            using HttpClient client = new();
 
-            string result = await responseMessage.Content.ReadAsStringAsync();
-            IList<Team> gotFamilies = JsonSerializer.Deserialize<IList<Team>>(result, new JsonSerializerOptions{ PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-            return gotFamilies;
-        }
+            string teamAsJson = JsonSerializer.Serialize(team);
 
-        
-
-        public async Task<Team> AddTeam(Team team)
-        {
-            string teamJson = JsonSerializer.Serialize(team);
-            HttpContent content = new StringContent(
-                teamJson,
+            StringContent content = new StringContent(
+                teamAsJson,
                 Encoding.UTF8,
-                "application/json");
-            HttpResponseMessage responseMessage = 
-                await client.PostAsync(uri,content);
+                "application/json"
+            );
+            HttpResponseMessage responseMessage = await client.PostAsync($"{URL}/Team", content);
             if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception(responseMessage.ReasonPhrase);
-            }
+                throw new Exception($"Error: {responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
+        }
+
+        public async Task<IList<Team>> GetTeams()
+        {
+            using HttpClient client = new();
+
+            HttpResponseMessage responseMessage = await client.GetAsync($"{URL}/Team");
+
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new Exception($"{responseMessage.StatusCode}, {responseMessage.ReasonPhrase}");
 
             string result = await responseMessage.Content.ReadAsStringAsync();
-            Team returnDeserialize = JsonSerializer.Deserialize<Team>(result, new JsonSerializerOptions{ PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
-            return returnDeserialize;
+
+            IList<Team> teams = JsonSerializer.Deserialize<IList<Team>>(result, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            return teams;
         }
     }
         

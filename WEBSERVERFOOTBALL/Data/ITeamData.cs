@@ -6,8 +6,7 @@ namespace WEBSERVERFOOTBALL.Data
 {
     public interface ITeamData
     {
-        Task<IList<Team>> ReadAllTeams(int Rating, string TeamName);
-        
-        Task<Team> AddTeam(Team addTeam);
+        Task AddTeam(Team team);
+        Task<IList<Team>> GetTeams();
     }
 }
